@@ -31,6 +31,7 @@ import urllib2
 import urllib
 import os
 import ConfigParser
+from urllib2 import HTTPError
 try:
     import simplejson as json
 except ImportError:
@@ -77,8 +78,15 @@ class BitBucket(object):
         user = user if user else self.username
         url = 'repositories/%s/%s/issues/' % (user, repository)
         if filter:
-            url = "%s?%s" % (url, urllib.urlencode(filter))
-        return self.call(url)
+            url = "%s?%s" % (url, urllib.urlencode(filter, doseq=True))
+        try:
+            issues = self.call(url)
+        except HTTPError:
+            issues = {
+               "count":0
+              , "issues":[]
+            }
+        return issues
 
 def set_authentication():
     """Extracts authentication according to above schema
@@ -87,7 +95,7 @@ def set_authentication():
     here since, the USERNAME and PASSWORD will be set automatically
     """
     if 'BBUSERNAME' in os.environ and 'BBPASSWORD' in os.environ:
-        (USERNAME, PASSWORD, OWNER) = (os.environ['BBUSERNAME'], 
+        (USERNAME, PASSWORD, OWNER) = (os.environ['BBUSERNAME'],
             os.environ['BBPASSWORD'], os.environ['BBOWNER'])
         return
 
@@ -112,7 +120,7 @@ def get_repositories(user):
     return [repo['slug'] for repo in user.repositories()]
 
 @ALLOWED_COMMANDS.add
-def my_issues(project=None, status='new'):
+def my_issues(project=None, status=['new', 'open']):
     """Displays all the issues assigned to you in a specific project if project
     is specified, else shows issues in all projects.
 
@@ -124,6 +132,7 @@ def my_issues(project=None, status='new'):
 
     issue_count = 0
     for repository in repository_names:
+        
         issues = api.get_issues(repository, filter={
             'status': status, 'responsible': USERNAME,
             },
@@ -139,7 +148,7 @@ def my_issues(project=None, status='new'):
         for issue in issues['issues']:
             uri = 'https://bitbucket.org/%s/issue/%s' 
             uri = uri % (
-                '/'.join(issue['resource_uri'].split('/')[3:5]), 
+                '/'.join(issue['resource_uri'].split('/')[3:5]),
                 issue['local_id'])
             print "# %s: %s (%s)" % (
                 issue['local_id'], issue['title'], uri)
@@ -172,7 +181,7 @@ if __name__ == '__main__':
     parser.add_option('-u', '--username', dest='username', default=None)
     parser.add_option('-p', '--password', dest='password', default=None)
     parser.add_option('-o', '--owner', dest='owner', default=None)
-    parser.add_option('-i', '--ignore_empty', action="store_true", 
+    parser.add_option('-i', '--ignore_empty', action="store_true",
         dest='ignore_empty', default=False, help="""If you do not want to print 
 the logs for projects which dont have issues or have zero number of 
 issues, this can be set. Equivalent to setting -i when calling the program""")
