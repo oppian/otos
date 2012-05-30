@@ -78,6 +78,7 @@ def set_authentication():
     The auth through arguments when starting the program need not be handled 
     here since, the USERNAME and PASSWORD will be set automatically
     """
+    global USERNAME, PASSWORD
     if 'GITHUB_USERNAME' in os.environ and 'GITHUB_PASSWORD' in os.environ:
         (USERNAME, PASSWORD) = (os.environ['GITHUB_USERNAME'], os.environ['GITHUB_PASSWORD'])
         return
@@ -88,6 +89,7 @@ def set_authentication():
         config.read(config_file)
         USERNAME = config.get('auth', 'username')
         PASSWORD = config.get('auth', 'password')
+        return
 
     raise Exception("No username and password given")
 
@@ -131,8 +133,8 @@ def execute_commands(commands):
         else:
             ALLOWED_COMMANDS[command]()
 
-
-if __name__ == '__main__':
+def main():
+    global USERNAME, PASSWORD
     from optparse import OptionParser
     usage = "usage: %prog [options] command"
     parser = OptionParser(usage=usage, description=__doc__)
@@ -144,5 +146,9 @@ if __name__ == '__main__':
         parser.error("No command specified")
 
     USERNAME, PASSWORD = options.username, options.password
-
     execute_commands(args)
+
+if __name__ == '__main__':
+    main()
+
+

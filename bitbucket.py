@@ -9,15 +9,15 @@ The username and password for this program can be set in multiple ways.
 -                                                                              
 1. Set environment variable                                                    
     Example:                                                                   
-      export BBUSERNAME = <username>                                           
-      export BBPASSWORD = <password>                                           
-      export BBOWNER = <owner>                                                 
+      export BITBUCKET_USERNAME = <username>                                           
+      export BITBUCKET_PASSWORD = <password>                                           
+      export BITBUCKET_OWNER = <owner>                                                 
  -                                                                             
 2. Create a file called .bitbucket in your home directory and set the following
 -                                                                              
        [auth]                                                                  
        username = <username>                                                   
-       passwrod = <password>                                                   
+       password = <password>                                                   
        owner = <owner>                                                         
 -                                                                              
 3. Pass as command line arguments when calling this program                    
@@ -48,7 +48,7 @@ class CommandDict(dict):
         self[func.__name__] = func
 
 
-USERNAME = PASSWORD = OWNER = None
+USERNAME = PASSWORD = OWNER = IGNORE_EMPTY = None
 ALLOWED_COMMANDS = CommandDict()
 
 
@@ -96,9 +96,11 @@ def set_authentication():
     The auth through arguments when starting the program need not be handled 
     here since, the USERNAME and PASSWORD will be set automatically
     """
-    if 'BBUSERNAME' in os.environ and 'BBPASSWORD' in os.environ:
-        (USERNAME, PASSWORD, OWNER) = (os.environ['BBUSERNAME'],
-            os.environ['BBPASSWORD'], os.environ['BBOWNER'])
+    global USERNAME, PASSWORD, OWNER
+    
+    if 'BITBUCKET_USERNAME' in os.environ and 'BITBUCKET_PASSWORD' in os.environ:
+        (USERNAME, PASSWORD, OWNER) = (os.environ['BITBUCKET_USERNAME'],
+            os.environ['BITBUCKET_PASSWORD'], os.environ['BITBUCKET_OWNER'])
         return
 
     config_file = os.path.join(os.environ['HOME'], '.bitbucket')
@@ -108,6 +110,7 @@ def set_authentication():
         USERNAME = config.get('auth', 'username')
         PASSWORD = config.get('auth', 'password')
         OWNER = config.get('auth', 'owner')
+        return
 
     raise Exception("No username and password given")
 
@@ -132,7 +135,6 @@ def my_issues(project=None, status=['new', 'open']):
     repository_names = [project] if project \
         else [r['slug'] for r in api.get_repositories(OWNER or USERNAME)]
 
-    issue_count = 0
     for repository in repository_names:
         
         issues = api.get_issues(repository, filter={
@@ -175,8 +177,9 @@ def execute_commands(commands):
         else:
             ALLOWED_COMMANDS[command]()
 
-
-if __name__ == '__main__':
+def main():
+    global USERNAME, PASSWORD, OWNER, IGNORE_EMPTY
+    
     from optparse import OptionParser
     usage = "usage: %prog [options] command"
     parser = OptionParser(usage=usage, description=__doc__)
@@ -195,3 +198,6 @@ issues, this can be set. Equivalent to setting -i when calling the program""")
     IGNORE_EMPTY = options.ignore_empty
 
     execute_commands(args)
+
+if __name__ == '__main__':
+    main()
