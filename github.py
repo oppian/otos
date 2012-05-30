@@ -128,12 +128,29 @@ def get_repositories(user):
     return [repo['slug'] for repo in user.repositories()]
 
 @ALLOWED_COMMANDS.add
-def my_issues(repo=None):
+def my_issues(repo=None, 
+              filter='assigned', 
+              state='open', 
+              labels=None, 
+              sort='created', 
+              direction='desc',
+              since=None
+            ):
     """Displays all the issues assigned to you
     """
     api = get_authenticated_api()
     
-    issues = api.get_issues(repo)
+    issues_filter={
+      'filter':filter,
+      'state':state,
+      'sort':sort,
+      'direction':direction
+    }
+    if labels:
+        issues_filter['labels'] = labels
+    if since:
+        issues_filter['since'] = since 
+    issues = api.get_issues(repo, issues_filter)
 
     for issue in issues:
         print "# %s: %s (%s)" % (issue['number'], issue['title'], issue['html_url'])
