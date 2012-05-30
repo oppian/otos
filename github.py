@@ -1,7 +1,29 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
-                             
+Get all your GitHub issues.
+-                                                                              
+:copyright: (c) 2012 by Oppian Systems Ltd
+:license: BSD, see LICENSE for more details.
+-                                                                              
+The username and password for this program can be set in multiple ways.
+-
+1. Set environment variable                                                    
+    Example:                                                                   
+      export GITHUB_USERNAME = <username>                                           
+      export GITHUB_PASSWORD = <password>                                           
+      export GITHUB_OWNER = <owner>                                                 
+ -                                                                             
+2. Create a file called .github in your home directory and set the following
+-                                                                              
+       [auth]                                                                  
+       username = <username>                                                   
+       password = <password>                                                 
+-                                                                              
+3. Pass as command line arguments when calling this program
+    ./github.py -u <username> -p <password>
+-                                                                              
+
 """
 import urllib2
 import urllib
@@ -52,11 +74,11 @@ class GitHub(object):
             links = response.info()['link'].split(',')
             for link in links:
                 if link.find('rel="next"') != -1:
-                    next_link = link[link.index('<')+1:link.index('>')]
+                    next_link = link[link.index('<') + 1:link.index('>')]
                     break
             
         response_data = response.read()
-        return ( (json.loads(response_data) if as_json else response_data), next_link)
+        return ((json.loads(response_data) if as_json else response_data), next_link)
 
     def get_issues(self, issue_filter=None):
         """Returns issues"""
@@ -112,13 +134,13 @@ def my_issues():
     issues = api.get_issues()
 
     for issue in issues:
-        print "# %s: %s (%s)" %(issue['number'], issue['title'], issue['html_url'])
+        print "# %s: %s (%s)" % (issue['number'], issue['title'], issue['html_url'])
 
 def execute_commands(commands):
     """Commands can be passed positional arguments using :
     For example
 
-    github -u username -p password my_issues
+    github my_issues
     """
     for command in commands:
         if ':' in command:

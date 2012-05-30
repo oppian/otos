@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-"""Get all your bitbucket issues at once-Fetches/Displays your bitbucket issues
+"""
+Get all your bitbucket issues at once-Fetches/Displays your bitbucket issues
 -                                                                              
 :copyright: (c) 2011 by Openlabs Technologies & Consulting (P) Limited         
 :license: BSD, see LICENSE for more details.                                   
@@ -162,7 +163,7 @@ def execute_commands(commands):
     """Commands can be passed positional arguments using :
     For example
 
-    bitbucket -u username -p password show_my_issues:projectx
+    bitbucket my_issues:projectx
     """
     for command in commands:
         if ':' in command:
