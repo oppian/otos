@@ -26,6 +26,8 @@ The concept of owner: In bitbucket the repositories are owned by an user while
 you may have been given access to it. So if you need issues on projects hosted 
 by some other user as well, then you need to specify owner. If not by default  
 the issues in projects owned by you are given                                  
+
+Taken from: https://gist.github.com/2828291
 """
 import urllib2
 import urllib
