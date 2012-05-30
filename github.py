@@ -81,7 +81,11 @@ class GitHub(object):
         return ((json.loads(response_data) if as_json else response_data), next_link)
 
     def get_issues(self, repo=None, issue_filter=None):
-        """Returns issues"""
+        """
+        Returns issues.
+        Can filter using params from github
+        http://developer.github.com/v3/issues/
+        """
         url = 'issues'
         if repo:
             url = "repos/%s/%s" % (repo, url)
@@ -128,29 +132,14 @@ def get_repositories(user):
     return [repo['slug'] for repo in user.repositories()]
 
 @ALLOWED_COMMANDS.add
-def my_issues(repo=None, 
-              filter='assigned', 
-              state='open', 
-              labels=None, 
-              sort='created', 
-              direction='desc',
-              since=None
-            ):
-    """Displays all the issues assigned to you
+def my_issues(repo=None, **kwargs):
+    """
+    Displays all the issues assigned to you
+    See http://developer.github.com/v3/issues/
     """
     api = get_authenticated_api()
     
-    issues_filter={
-      'filter':filter,
-      'state':state,
-      'sort':sort,
-      'direction':direction
-    }
-    if labels:
-        issues_filter['labels'] = labels
-    if since:
-        issues_filter['since'] = since 
-    issues = api.get_issues(repo, issues_filter)
+    issues = api.get_issues(repo, issue_filter=kwargs)
 
     for issue in issues:
         print "# %s: %s (%s)" % (issue['number'], issue['title'], issue['html_url'])
