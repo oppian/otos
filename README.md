@@ -56,18 +56,25 @@ Display all my issues from my organization that is set to 'wontfix':
 
 The username and password for this program can be set in multiple ways.        
                                                                              
-1. Set environment variable                                                    
+Set environment variables:                                                    
 
+```
 	export BITBUCKET_USERNAME = <username>                                           
 	export BITBUCKET_PASSWORD = <password>                                           
 	export BITBUCKET_OWNER = <owner>                                                 
+```
 
-2. Create a file called .bitbucket in your home directory and set the following
+Create a file called .bitbucket in your home directory and set the following:
 
+```
 	[auth]                                                                  
 	username = <username>                                                   
 	password = <password>                                                   
 	owner = <owner>                                                         
+```
 
-3. Pass as command line arguments when calling this program
+Pass as command line arguments when calling this program:
 
+```
+	./bitbucket.py --username <username> --password <password> --owner <owner>
+```
