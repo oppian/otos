@@ -80,9 +80,11 @@ class GitHub(object):
         response_data = response.read()
         return ((json.loads(response_data) if as_json else response_data), next_link)
 
-    def get_issues(self, issue_filter=None):
+    def get_issues(self, repo=None, issue_filter=None):
         """Returns issues"""
         url = 'issues'
+        if repo:
+            url = "repos/%s/%s" % (repo, url)
         if issue_filter:
             url = "%s?%s" % (url, urllib.urlencode(issue_filter, doseq=True))
         try:
@@ -126,12 +128,12 @@ def get_repositories(user):
     return [repo['slug'] for repo in user.repositories()]
 
 @ALLOWED_COMMANDS.add
-def my_issues():
+def my_issues(repo=None):
     """Displays all the issues assigned to you
     """
     api = get_authenticated_api()
     
-    issues = api.get_issues()
+    issues = api.get_issues(repo)
 
     for issue in issues:
         print "# %s: %s (%s)" % (issue['number'], issue['title'], issue['html_url'])
@@ -140,7 +142,7 @@ def execute_commands(commands):
     """Commands can be passed positional arguments using :
     For example
 
-    github my_issues
+    github my_issues:user/repo
     """
     for command in commands:
         if ':' in command:
