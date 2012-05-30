@@ -110,7 +110,7 @@ def my_issues():
     issues = api.get_issues()
 
     for issue in issues:
-        print "#%s %s %s" %(issue['number'], issue['title'], issue['html_url'])
+        print "# %s: %s (%s)" %(issue['number'], issue['title'], issue['html_url'])
 
 def execute_commands(commands):
     """Commands can be passed positional arguments using :
